@@ -18,7 +18,7 @@ def plot_decision_boundary(model, X, y):
     plt.xlabel('x1')
     plt.scatter(X[0, :], X[1, :], c=y[0, :], cmap=plt.cm.Spectral)
 
-def load_planar_dataset():
+def load_planar_dataset(petals=8):
     np.random.seed(1)
     m = 400 # number of examples
     N = int(m/2) # number of points per class
@@ -30,7 +30,7 @@ def load_planar_dataset():
     for j in range(2):
         ix = range(N*j,N*(j+1))
         t = np.linspace(j*3.12,(j+1)*3.12,N) + np.random.randn(N)*0.2 # theta
-        r = a*np.sin(4*t) + np.random.randn(N)*0.2 # radius
+        r = a*np.sin((petals / 2)*t) + np.random.randn(N)*0.2 # radius
         X[ix] = np.c_[r*np.sin(t), r*np.cos(t)]
         Y[ix] = j
         
