@@ -1,8 +1,46 @@
 import numpy as np
 
 class Activation:
+    """
+    Static activation functions available for layers.
+    
+    When a layer is added to a model, you can specify
+    which activation function to use for that layer.
+    Because activation functions are generalized 
+    mathematical functions, these are declared as static
+    methods so can only be called by Activation.___().
+    
+    In this module, layer instance parameters are assigned
+    memory locations of the methods in Activation.
+    
+    Methods
+    -------
+    sigmoid(Z: np.array, derivative: bool)
+        Returns sigmoid of input or derivative of sigmoid of input
+       
+    tanh(Z: np.array, derivative: bool)
+        Returns tanh of input or derivative of tanh of input
+    
+    relu(Z: np.array, derivative: bool, beta: float, leak: float)
+        Returns [leaky] ReLU of input or derivative of [leaky] ReLU of input
+    """
+    
     @staticmethod
-    def sigmoid(Z, derivative, other):
+    def sigmoid(Z, derivative):
+        """
+        Returns sigmoid of input or derivative of sigmoid of input
+        
+        All math element-wise
+        
+        Parameters
+        ----------
+        Z : np.array
+            Input value(s) to activate
+        derivative : bool
+            False: Take the sigmoid
+            True: take the derivative of the sigmoid
+        """
+        
         A = 1 / (1 + np.exp(-Z))
 
         if not derivative:
@@ -11,7 +49,21 @@ class Activation:
             return A * (1 - A)
 
     @staticmethod
-    def tanh(Z, derivative, other):
+    def tanh(Z, derivative):
+        """
+        Returns tanh of input or derivative of tanh of input
+        
+        All math element-wise
+        
+        Parameters
+        ----------
+        Z : np.array
+            Input value(s) to activate
+        derivative : bool
+            False: Take the tanh
+            True: take the derivative of the tanh
+        """
+
         num = np.exp(Z) - np.exp(-Z)
         den = np.exp(Z) + np.exp(-Z)
         A = np.divide(num, den)
@@ -21,19 +73,28 @@ class Activation:
         else:
             return (1 - np.power(A, 2))
 
-    # @param args [optional]
-    #     float args['beta'] slope for all A > 0
-    #     float args['leak'] slope for all A < 0
     @staticmethod
-    def relu(Z, derivative, other):
-        beta = 1
-        leak = 0
-        if other is not None:
-            if 'beta' in other:
-                beta = other['beta']
-            if 'leak' in other:
-                leak = other['leak']
-                
+    def relu(Z, derivative, beta=1, leak=0):
+        """
+        Returns sigmoid of input or derivative of sigmoid of input
+        
+        All math element-wise
+        
+        Parameters
+        ----------
+        Z : np.array
+            Input value(s) to activate
+        derivative : bool
+            False: Take the sigmoid
+            True: take the derivative of the sigmoid
+        beta : float, optional
+            Slope of ReLU for all A > 0 (default is 1)
+        leak : float, optional 
+            Slope of ReLU for all A < 0 (default is 0 / not leaky)
+        """
+            
+        beta = float(beta)
+        leak = float(leak)
         if not derivative:
             A = Z.copy().astype(float)
             A[A < 0] *= leak
@@ -41,9 +102,9 @@ class Activation:
             return A
         else:
             dA = Z.copy().astype(float)
-            dA[dA > 0] = beta
-            dA[dA == 0] = beta / 2.
-            dA[dA < 0] = leak
+            dA[dA > 0] *= beta
+            dA[dA == 0] *= beta / 2
+            dA[dA < 0] *= leak
             return dA
 
 class Layer:
@@ -73,11 +134,11 @@ class Layer:
 
         elif activation == 'sigmoid':
             self.g = Activation.sigmoid
-            self.g_args = None
+            self.g_args = {}
 
         elif activation == 'tanh':
             self.g = Activation.tanh
-            self.g_args = None
+            self.g_args = {}
         
         # Parameters W, b
         self.parameters = {}
@@ -87,7 +148,7 @@ class Layer:
         return
     
     def activate(self, Z, derivative=False):
-        return self.g(Z, derivative, self.g_args)
+        return self.g(Z, derivative, **self.g_args)
     
     # @param int n_j number of nodes in previous layer
     def initialize(self, n_j, random_init=False, random_scale=0.01):
