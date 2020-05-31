@@ -78,7 +78,7 @@ plt.show()
 ```
 
 
-![png](images/output_5_0.png)
+![png](output_5_0.png)
 
 
 ### Break up system data into train and test
@@ -193,5 +193,5 @@ plt.title('Prediction')
 
 
 
-![png](images/output_14_1.png)
+![png](output_14_1.png)
 
